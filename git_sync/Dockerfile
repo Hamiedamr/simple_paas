@@ -1,16 +1,13 @@
 FROM alpine:3.14
-
-RUN apt-get update \
-  # dependencies for building Python packages
-  && apt-get install -y build-essential \
-  # psycopg2 dependencies
-  && apt-get install -y libpq-dev \
-  # Additional dependencies
-  && apt-get install -y telnet netcat \
-  # cleaning up unused files
-  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
-  && rm -rf /var/lib/apt/lists/*
+RUN apk update && apk add bash
+RUN apk add git
+RUN apk add --update --no-cache openssh
+RUN mkdir -p /root/.ssh/ && \
+    echo "$SSH_KEY" > /root/.ssh/id_rsa.pub && \
+    chmod -R 600 /root/.ssh/ && \
+    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+RUN git init && git remote add origin https://github.com/Hamiedamr/simple_paas.git
 COPY ./git_sync/sync.sh /sync
+
 RUN sed -i 's/\r$//g' /sync
 RUN chmod +x /sync
-WORKDIR /app
