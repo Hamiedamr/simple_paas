@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./flask/Dockerfile
+    image: flask_web
+    command: /start
+    volumes:
+      - .:/app
+    ports:
+      - 5010:5000
+    environment:
+      - FLASK_APP=app
+  git_sync:
+    build:
+      context: .
+      dockerfile: git_sync/Dockerfile
+    image: git_sync
+    command: /sync
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+
+
